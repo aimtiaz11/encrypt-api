@@ -5,15 +5,16 @@ public class ResponseModel {
 
     private String encryptedValue;
 
-    public ResponseModel(String content) {
-        this.encryptedValue = content;
+    public ResponseModel(String encryptedValue) {
+        this.encryptedValue = encryptedValue;
     }
 
-    public String getContent() {
+    public String getEncryptedValue() {
         return encryptedValue;
     }
 
-    public void setContent(String content) {
-        this.encryptedValue = content;
+    public void setEncryptedValue(String encryptedValue) {
+        this.encryptedValue = encryptedValue;
     }
+
 }

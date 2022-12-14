@@ -1,7 +1,6 @@
 package com.encrypt.encryptapi.model;
 
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import jakarta.validation.constraints.NotBlank;
 
 public class RequestModel {

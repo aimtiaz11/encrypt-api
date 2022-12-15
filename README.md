@@ -1,12 +1,14 @@
 # secure-properties Encryption API
 
+## About
+
 Springboot app providing REST-API to allow properties to be encrypted via MuleSoft's secure-properties.jar without
 caller knowing the key.
 
 Refer to this link to learn more about secuire-properties configuration JAR:
 https://docs.mulesoft.com/mule-runtime/4.4/secure-configuration-properties
 
-Requires Java 17 or above.
+Requires Java 8.
 
 ## Running standalone JAR
 
@@ -37,8 +39,7 @@ docker run -p 8080:8080 -e "PROD=secret1;NON_PROD=secret2" aimtiaz11/encrypt-api
 ```
 
 ## Encrypting value via REST-API
-Run the following command to encrypt:
-
+Following is a sample Curl command on how to call the API.
 ```
 curl --location --request POST 'http://localhost:8080/encryption-api/api/v1/encrypt' \
 --header 'Content-Type: application/json' \
@@ -48,6 +49,9 @@ curl --location --request POST 'http://localhost:8080/encryption-api/api/v1/encr
 }'
 ```
 environment can be `PROD` or `NONPROD`
+
+## swagger-ui
+You can also use the API via Swagger UI located in: http://localhost:8080/swagger-ui/
 
 
 ## License MIT

@@ -34,10 +34,6 @@ public class EncryptApiController {
     public ResponseModel encrypt(@Validated @RequestBody RequestModel request) throws IOException, InterruptedException {
 
         String envType = request.getEnvironment();
-        if (!("PROD".equals(envType) || "NONPROD".equals(envType))) {
-            throw new IllegalArgumentException("Invalid environment type selected: " + envType);
-        }
-
         String encryptedValue = encryptionService.encrypt(request.getValue(), envType);
 
         return new ResponseModel(encryptedValue);

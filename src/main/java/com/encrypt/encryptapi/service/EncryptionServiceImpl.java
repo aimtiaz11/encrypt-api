@@ -2,10 +2,13 @@ package com.encrypt.encryptapi.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.Properties;
 
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
@@ -16,11 +19,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     @Value("${encryption.mode}")
     private String mode;
 
-    @Value("${encryption.key.nonprod}")
-    private String nonProdKey;
-    @Value("${encryption.key.prod}")
-    private String prodKey;
-
     public String encrypt(String valueToEncrypt, String envType)
             throws IOException, InterruptedException {
 
@@ -28,28 +26,33 @@ public class EncryptionServiceImpl implements EncryptionService {
         Process process;
         String line;
 
-        // Set prod or nonprod key depending on parameter.
-        String encryptionKey;
-        if("PROD".equals(envType))
-            encryptionKey = prodKey;
-        else
-            encryptionKey = nonProdKey;
+        Optional<String> encryptionKeyProperty = System.getProperties()
+                .stringPropertyNames()
+                .stream()
+                .filter(prop -> StringUtils.startsWithIgnoreCase(prop, "encryption.key." + envType))
+                .findFirst();
 
-        String toolString = "java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool string encrypt " + algorithm + " " + mode + " " + encryptionKey + " " + valueToEncrypt;
+        if (encryptionKeyProperty.isPresent()) {
+            String encryptionKey = System.getProperty(encryptionKeyProperty.get());
+            String toolString = "java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool string encrypt " + algorithm + " " + mode + " " + encryptionKey + " " + valueToEncrypt;
 
-        process = Runtime.getRuntime().exec(toolString);
-        process.waitFor();
+            process = Runtime.getRuntime().exec(toolString);
+            process.waitFor();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-        while ((line = reader.readLine()) != null) {
-            stringBuffer.append(line);
+            while ((line = reader.readLine()) != null) {
+                stringBuffer.append(line);
+            }
+            while ((line = error.readLine()) != null) {
+                stringBuffer.append(line);
+            }
+
+            return stringBuffer.toString();
+
+        } else {
+            throw new RuntimeException("Unable find encryption key for environment type: " + envType);
         }
-        while ((line = error.readLine()) != null) {
-            stringBuffer.append(line);
-        }
-
-        return stringBuffer.toString();
     }
 }
